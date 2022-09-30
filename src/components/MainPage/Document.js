@@ -25,15 +25,15 @@ class Document extends Component {
               h={90}
               rounded={10}
             />
+            <Text
+              color={'white'}
+              fontSize={'md'}
+              fontWeight={600}
+              mx={'auto'}
+              textAlign={'center'}>
+              {this.props.name}
+            </Text>
           </Box>
-          <Text
-            color={'black'}
-            fontSize={'md'}
-            fontWeight={600}
-            mx={'auto'}
-            mt={4}>
-            {this.props.name}
-          </Text>
         </TouchableOpacity>
       </View>
     );

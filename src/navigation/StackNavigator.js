@@ -2,7 +2,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/Home';
 import Main from '../screens/Main';
-import AddWord from '../screens/AddWord';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,22 +26,13 @@ function MyStack() {
           headerTitle: 'DECK WORD',
           headerTitleAlign: 'center',
           headerTitleStyle: {
-            color: '#fff',
-            fontSize: 30,
+            color: '#ffffff',
+            fontSize: 25,
             fontWeight: 'bold',
           },
           headerStyle: {
-            backgroundColor: '#34d399',
-            height: 60,
+            backgroundColor: '#3a5ba0',
           },
-        }}
-      />
-
-      <Stack.Screen
-        name="AddWord"
-        component={AddWord}
-        options={{
-          header: () => null,
         }}
       />
     </Stack.Navigator>
