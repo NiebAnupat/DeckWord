@@ -12,6 +12,14 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 class Word extends Component {
+  constructor() {
+    super();
+  }
+
+  componentDidMount() {
+    console.log('Word mounted');
+  }
+
   render() {
     return (
       <Box
@@ -21,17 +29,20 @@ class Word extends Component {
         rounded={20}
         bg={'white'}
         flexDirection={'row'}
-        p={2}>
+        p={2}
+        mb={3}>
         <VStack>
           <Text my={'1'} fontSize="2xl" color="black" fontWeight="500">
-            English
+            {this.props.front}
           </Text>
           <Text mt={'-1'} ml={'5'} fontSize="md" color="black" fontWeight="500">
-            แตงโม
+            {this.props.back}
           </Text>
         </VStack>
 
         <Menu
+          mr={3}
+          mt={12}
           trigger={(triggerProps) => {
             return (
               <IconButton
@@ -51,9 +62,18 @@ class Word extends Component {
               />
             );
           }}>
-          <Menu.Item>Option 1</Menu.Item>
-          <Menu.Item>Option 2</Menu.Item>
-          <Menu.Item>Option 3</Menu.Item>
+          <Menu.Item
+            onPress={() => {
+              this.props.handleEditFront(this.props.front);
+              this.props.handleEditBack(this.props.back);
+              this.props.handleEditIndex(this.props.index);
+              this.props.visibleEditWordModal();
+            }}>
+            Edit
+          </Menu.Item>
+          <Menu.Item onPress={() => this.props.removeWord(this.props.index)}>
+            Delete
+          </Menu.Item>
         </Menu>
       </Box>
     );

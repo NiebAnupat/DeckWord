@@ -18,7 +18,6 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Document from '../components/MainPage/Document';
 import { TouchableWithoutFeedback } from 'react-native';
 import Word from '../components/AddWordPage/Word';
-import { background } from 'native-base/lib/typescript/theme/styled-system';
 
 class Main extends Component {
   constructor() {
@@ -27,30 +26,39 @@ class Main extends Component {
       nameModalVisible: false,
       menuModalVisible: false,
       renameModalVisible: false,
+      addWordModalVisible: false,
       actionSheetVisible: false,
+      editWordModalVisible: false,
       deckName: '',
       selectedDeckName: '',
       decks: [
         'English',
-        'Math',
-        'Science',
-        'History',
         'Spanish',
         'French',
         'German',
         'Latin',
-        'Computer Science',
-        'Art',
-        'Music',
-        'Physical Education',
-        'Health',
-        'Economics',
-        'Philosophy',
-        'Psychology',
-        'Sociology',
-        'Biology',
-        'Chemistry',
-        'Physics',
+        'Japanese',
+        'Chinese',
+        'Korean',
+        'Russian',
+        'Italian',
+        'Portuguese',
+        'Swedish',
+      ],
+      front: '',
+      back: '',
+      editFront: '',
+      editBack: '',
+      editIndex: null,
+      words: [
+        {
+          front: 'Hello',
+          back: 'Bonjour',
+        },
+        {
+          front: 'Goodbye',
+          back: 'Au revoir',
+        },
       ],
     };
   }
@@ -74,6 +82,22 @@ class Main extends Component {
     });
   };
 
+  visibleAddWordModal = () => {
+    this.hideMenuModal();
+    this.hideActionSheet();
+    this.setState({
+      addWordModalVisible: true,
+    });
+  };
+
+  visibleEditWordModal = () => {
+    this.hideMenuModal();
+    this.hideActionSheet();
+    this.setState({
+      editWordModalVisible: true,
+    });
+  };
+
   visibleActionSheet = () => {
     this.hideMenuModal();
     this.setState({ actionSheetVisible: true });
@@ -93,6 +117,18 @@ class Main extends Component {
     });
   };
 
+  hideAddWordModal = () => {
+    this.setState({
+      addWordModalVisible: false,
+    });
+  };
+
+  hideEditWordModal = () => {
+    this.setState({
+      editWordModalVisible: false,
+    });
+  };
+
   hideActionSheet = () => {
     this.setState({ actionSheetVisible: false });
   };
@@ -103,6 +139,26 @@ class Main extends Component {
 
   handleSelectedDeckName = (text) => {
     this.setState({ selectedDeckName: text });
+  };
+
+  handleFront = (text) => {
+    this.setState({ front: text });
+  };
+
+  handleBack = (text) => {
+    this.setState({ back: text });
+  };
+
+  handleEditFront = (text) => {
+    this.setState({ editFront: text });
+  };
+
+  handleEditBack = (text) => {
+    this.setState({ editBack: text });
+  };
+
+  handleEditIndex = (index) => {
+    this.setState({ editIndex: index });
   };
 
   addDeck = () => {
@@ -145,6 +201,47 @@ class Main extends Component {
 
   editDeck = () => {
     console.log('Edit Deck : ', this.state.selectedDeckName);
+  };
+
+  addWord = async () => {
+    this.setState({
+      words: [
+        ...this.state.words,
+        {
+          front: this.state.front,
+          back: this.state.back,
+        },
+      ],
+    });
+    this.hideAddWordModal();
+  };
+
+  removeWord = (index) => {
+    console.log('Remove Word : ', index);
+    this.setState({
+      words: this.state.words.filter((word, i) => i !== index),
+    });
+  };
+
+  editWord = () => {
+    console.log('Edit Word : ', this.state.editIndex);
+    this.setState(
+      {
+        words: this.state.words.map((word, i) => {
+          if (i === this.state.editIndex) {
+            return {
+              front: this.state.editFront,
+              back: this.state.editBack,
+            };
+          } else {
+            return word;
+          }
+        }),
+      },
+      () => {
+        this.hideEditWordModal();
+      },
+    );
   };
 
   nameModal = () => {
@@ -323,7 +420,6 @@ class Main extends Component {
               w={100}
               borderWidth={1}
               borderColor={'#b9b9b9'}
-              h={9}
               mt={'5%'}
               bg={'danger.600'}
               _text={{
@@ -340,7 +436,6 @@ class Main extends Component {
               w={100}
               borderWidth={1}
               borderColor={'#b9b9b9'}
-              h={9}
               mt={'5%'}
               bg={'#3A5BA0'}
               _text={{
@@ -359,6 +454,142 @@ class Main extends Component {
     );
   };
 
+  addWordModal = () => {
+    return (
+      <Modal
+        isOpen={this.state.addWordModalVisible}
+        // isOpen={true}
+      >
+        <TouchableWithoutFeedback onPress={this.hideAddWordModal}>
+          <View position={'absolute'} top={0} left={0} right={0} bottom={0} />
+        </TouchableWithoutFeedback>
+        <Box bg={'warmGray.100'} w={'80%'} h={'2/4'} rounded={25}>
+          <Input
+            w={'80%'}
+            fontSize={'2xl'}
+            fontWeight={500}
+            mx={'auto'}
+            mt={'15%'}
+            placeholder={'Front'}
+            textAlign={'center'}
+            h={'30%'}
+            onChangeText={(e) => this.handleFront(e)}
+          />
+          <Input
+            w={'80%'}
+            fontSize={'2xl'}
+            fontWeight={500}
+            mx={'auto'}
+            mt={5}
+            placeholder={'Back'}
+            textAlign={'center'}
+            h={'30%'}
+            onChangeText={(e) => this.handleBack(e)}
+          />
+          <HStack justifyContent="center" space={5}>
+            <Button
+              w={100}
+              mt={'5%'}
+              bg={'danger.600'}
+              onPress={this.hideAddWordModal}
+              _text={{
+                color: 'white',
+                fontWeight: '900',
+              }}
+              _pressed={{
+                bg: 'danger.400',
+              }}>
+              Cancel
+            </Button>
+            <Button
+              w={100}
+              mt={'5%'}
+              bg={'#3A5BA0'}
+              onPress={this.addWord}
+              _text={{
+                color: 'white',
+                fontWeight: '900',
+              }}
+              _pressed={{
+                bg: '#6487ce',
+              }}>
+              Add
+            </Button>
+          </HStack>
+        </Box>
+      </Modal>
+    );
+  };
+
+  editWordModal = () => {
+    return (
+      <Modal
+        isOpen={this.state.editWordModalVisible}
+        // isOpen={true}
+      >
+        <TouchableWithoutFeedback onPress={this.hideEditWordModal}>
+          <View position={'absolute'} top={0} left={0} right={0} bottom={0} />
+        </TouchableWithoutFeedback>
+        <Box bg={'warmGray.100'} w={'80%'} h={'2/4'} rounded={25}>
+          <Input
+            value={this.state.editFront}
+            w={'80%'}
+            fontSize={'2xl'}
+            fontWeight={500}
+            mx={'auto'}
+            mt={'15%'}
+            placeholder={'Front'}
+            textAlign={'center'}
+            h={'30%'}
+            onChangeText={(e) => this.handleEditFront(e)}
+          />
+          <Input
+            value={this.state.editBack}
+            w={'80%'}
+            fontSize={'2xl'}
+            fontWeight={500}
+            mx={'auto'}
+            mt={5}
+            placeholder={'Back'}
+            textAlign={'center'}
+            h={'30%'}
+            onChangeText={(e) => this.handleEditBack(e)}
+          />
+          <HStack justifyContent="center" space={5}>
+            <Button
+              w={100}
+              mt={'5%'}
+              bg={'danger.600'}
+              onPress={this.hideEditWordModal}
+              _text={{
+                color: 'white',
+                fontWeight: '900',
+              }}
+              _pressed={{
+                bg: 'danger.400',
+              }}>
+              Cancel
+            </Button>
+            <Button
+              w={100}
+              mt={'5%'}
+              bg={'#3A5BA0'}
+              onPress={this.editWord}
+              _text={{
+                color: 'white',
+                fontWeight: '900',
+              }}
+              _pressed={{
+                bg: '#6487ce',
+              }}>
+              Apply
+            </Button>
+          </HStack>
+        </Box>
+      </Modal>
+    );
+  };
+
   render() {
     return (
       <View h={'100%'}>
@@ -370,6 +601,12 @@ class Main extends Component {
 
         {/*Rename Modal*/}
         {this.renameModal()}
+
+        {/*Add Word Modal*/}
+        {this.addWordModal()}
+
+        {/*Edit Word Modal*/}
+        {this.editWordModal()}
 
         <View h={'100%'}>
           {
@@ -406,6 +643,7 @@ class Main extends Component {
                 <IconButton
                   ml={'auto'}
                   variant="unstyled"
+                  onPress={this.visibleAddWordModal}
                   icon={
                     <Icon
                       color={'gray.600'}
@@ -418,7 +656,21 @@ class Main extends Component {
               </Box>
 
               <ScrollView w={'100%'} h={'100%'}>
-                <Word />
+                {this.state.words.map((word, index) => {
+                  return (
+                    <Word
+                      front={word.front}
+                      back={word.back}
+                      key={index}
+                      index={index}
+                      removeWord={this.removeWord}
+                      visibleEditWordModal={this.visibleEditWordModal}
+                      handleEditFront={this.handleEditFront}
+                      handleEditBack={this.handleEditBack}
+                      handleEditIndex={this.handleEditIndex}
+                    />
+                  );
+                })}
               </ScrollView>
             </Actionsheet.Content>
           </Actionsheet>
