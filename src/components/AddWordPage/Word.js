@@ -1,14 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Box,
-  Fab,
-  Icon,
-  IconButton,
-  Menu,
-  Popover,
-  Text,
-  VStack,
-} from 'native-base';
+import { Box, Icon, IconButton, Menu, Text, VStack } from 'native-base';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 class Word extends Component {
@@ -66,12 +57,12 @@ class Word extends Component {
             onPress={() => {
               this.props.handleEditFront(this.props.front);
               this.props.handleEditBack(this.props.back);
-              this.props.handleEditIndex(this.props.index);
+              this.props.handleWordId(this.props.uuid);
               this.props.visibleEditWordModal();
             }}>
             Edit
           </Menu.Item>
-          <Menu.Item onPress={() => this.props.removeWord(this.props.index)}>
+          <Menu.Item onPress={() => this.props.removeWord(this.props.uuid)}>
             Delete
           </Menu.Item>
         </Menu>

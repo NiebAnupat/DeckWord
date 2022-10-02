@@ -13,7 +13,7 @@ class Document extends Component {
         <TouchableOpacity
           onPress={() => {
             this.props.visibleMenuModal();
-            this.props.handleSelectedDeckName(this.props.name);
+            this.props.handleSelectedDeckId(this.props.uuid);
           }}>
           <Box w={160} h={160} bg={'#3A5BA0'} rounded={10} p={3}>
             <Image

@@ -17,7 +17,9 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Document from '../components/MainPage/Document';
 import { TouchableWithoutFeedback } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Word from '../components/AddWordPage/Word';
+import uuid from 'react-native-uuid';
 
 class Main extends Component {
   constructor() {
@@ -30,43 +32,31 @@ class Main extends Component {
       actionSheetVisible: false,
       editWordModalVisible: false,
       deckName: '',
-      selectedDeckName: '',
-      decks: [
-        'English',
-        'Spanish',
-        'French',
-        'German',
-        'Latin',
-        'Japanese',
-        'Chinese',
-        'Korean',
-        'Russian',
-        'Italian',
-        'Portuguese',
-        'Swedish',
-      ],
+      selectedDeckId: null,
+      decks: [],
       front: '',
       back: '',
       editFront: '',
       editBack: '',
-      editIndex: null,
-      words: [
-        {
-          front: 'Hello',
-          back: 'Bonjour',
-        },
-        {
-          front: 'Goodbye',
-          back: 'Au revoir',
-        },
-      ],
+      wordId: null,
     };
+    AsyncStorage.getItem('@decks').then((decks) => {
+      if (decks) {
+        this.setState({ decks: JSON.parse(decks) });
+      }
+    });
   }
 
-  componentDidUpdate() {
-    console.log('State Changed');
+  async componentDidUpdate() {
+    try {
+      console.log(this.state.selectedDeckId);
+      await AsyncStorage.setItem('@decks', JSON.stringify(this.state.decks));
+    } catch (e) {
+      console.log(e);
+    }
   }
 
+  //<editor-fold desc="Visible Part">
   visibleNameModal = () => {
     this.setState({ nameModalVisible: true });
   };
@@ -102,7 +92,9 @@ class Main extends Component {
     this.hideMenuModal();
     this.setState({ actionSheetVisible: true });
   };
+  //</editor-fold>
 
+  //<editor-fold desc="Hide Part">
   hideNameModal = () => {
     this.setState({ nameModalVisible: false });
   };
@@ -132,13 +124,15 @@ class Main extends Component {
   hideActionSheet = () => {
     this.setState({ actionSheetVisible: false });
   };
+  //</editor-fold>
 
+  //<editor-fold desc="Handle Part">
   handleDeckName = (text) => {
     this.setState({ deckName: text });
   };
 
-  handleSelectedDeckName = (text) => {
-    this.setState({ selectedDeckName: text });
+  handleSelectedDeckId = (id) => {
+    this.setState({ selectedDeckId: id });
   };
 
   handleFront = (text) => {
@@ -157,93 +151,148 @@ class Main extends Component {
     this.setState({ editBack: text });
   };
 
-  handleEditIndex = (index) => {
-    this.setState({ editIndex: index });
+  handleWordId = (id) => {
+    this.setState({ wordId: id });
   };
+  //</editor-fold>
 
+  //<editor-fold desc="Function Part">
   addDeck = () => {
-    this.setState({
-      decks: [...this.state.decks, this.state.deckName],
-    });
-    this.hideNameModal();
-    this.props.navigation.navigate('AddWord', {
-      deckName: this.state.deckName,
-    });
+    const { deckName, decks } = this.state;
+    try {
+      if (deckName === '') {
+        alert('Please enter a name');
+      } else {
+        decks.push({
+          uuid: uuid.v4(),
+          name: deckName,
+          words: [],
+        });
+        this.setState({ decks: decks });
+        this.hideNameModal();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   removeDeck = () => {
-    console.log('Remove Deck : ', this.state.selectedDeckName);
-    this.setState({
-      decks: this.state.decks.filter(
-        (deck) => deck !== this.state.selectedDeckName,
-      ),
-    });
-    this.hideMenuModal();
+    console.log('Remove Deck Function');
+    const { decks } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.filter((deck) => deck.uuid !== selectedDeckId);
+      this.setState({ decks: newDecks });
+      this.hideMenuModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   renameDeck = () => {
-    console.log('Rename Deck : ', this.state.selectedDeckName);
-    this.setState(
-      {
-        decks: this.state.decks.map((deck) => {
-          if (deck === this.state.selectedDeckName) {
-            return this.state.deckName;
-          } else {
-            return deck;
-          }
-        }),
-      },
-      () => {
-        this.hideRenameModal();
-      },
-    );
+    console.log('Rename Deck Function');
+    const { decks, deckName } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.map((deck) => {
+        if (deck.uuid === selectedDeckId) {
+          deck.name = deckName;
+        }
+        return deck;
+      });
+      this.setState({ decks: newDecks });
+      this.hideRenameModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   editDeck = () => {
-    console.log('Edit Deck : ', this.state.selectedDeckName);
+    console.log('Edit Deck Function');
+    const { decks, front, back } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.map((deck) => {
+        if (deck.uuid === selectedDeckId) {
+          deck.words.push({
+            front: front,
+            back: back,
+          });
+        }
+        return deck;
+      });
+      this.setState({ decks: newDecks });
+      this.hideAddWordModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   addWord = async () => {
-    this.setState({
-      words: [
-        ...this.state.words,
-        {
-          front: this.state.front,
-          back: this.state.back,
-        },
-      ],
-    });
-    this.hideAddWordModal();
+    const { front, back, decks } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.map((deck) => {
+        if (deck.uuid === selectedDeckId) {
+          deck.words.push({
+            uuid: uuid.v4(),
+            front: front,
+            back: back,
+          });
+        }
+        return deck;
+      });
+      this.setState({ decks: newDecks });
+      this.hideAddWordModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  removeWord = (index) => {
-    console.log('Remove Word : ', index);
-    this.setState({
-      words: this.state.words.filter((word, i) => i !== index),
-    });
+  removeWord = (id) => {
+    console.log('Remove Word : ', id);
+    const { decks } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.map((deck) => {
+        if (deck.uuid === selectedDeckId) {
+          deck.words = deck.words.filter((word) => word.uuid !== id);
+        }
+        return deck;
+      });
+      this.setState({ decks: newDecks });
+      this.hideActionSheet();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   editWord = () => {
-    console.log('Edit Word : ', this.state.editIndex);
-    this.setState(
-      {
-        words: this.state.words.map((word, i) => {
-          if (i === this.state.editIndex) {
-            return {
-              front: this.state.editFront,
-              back: this.state.editBack,
-            };
-          } else {
+    console.log('Edit Word : ', this.state.wordId);
+    const { decks, editFront, editBack, wordId } = this.state;
+    const { selectedDeckId } = this.state;
+    try {
+      const newDecks = decks.map((deck) => {
+        if (deck.uuid === selectedDeckId) {
+          deck.words.map((word) => {
+            if (word.uuid === wordId) {
+              word.front = editFront;
+              word.back = editBack;
+            }
             return word;
-          }
-        }),
-      },
-      () => {
-        this.hideEditWordModal();
-      },
-    );
+          });
+        }
+        return deck;
+      });
+      this.setState({ decks: newDecks });
+      this.hideEditWordModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
+  //</editor-fold>
 
+  //<editor-fold desc="Modal Part">
   nameModal = () => {
     return (
       <Modal isOpen={this.state.nameModalVisible}>
@@ -307,6 +356,7 @@ class Main extends Component {
   };
 
   menuModal = () => {
+    console.log(this.state.decks);
     return (
       <Modal isOpen={this.state.menuModalVisible}>
         <TouchableWithoutFeedback onPress={this.hideMenuModal}>
@@ -315,7 +365,11 @@ class Main extends Component {
         <View>
           <Box bg={'white'} p={3} w={250} rounded={10}>
             <Text mx={'auto'} my={1} fontSize={'xl'} fontWeight={700}>
-              {this.state.selectedDeckName}
+              {!this.state.selectedDeckId
+                ? 'Select A Deck'
+                : this.state.decks.find(
+                    (deck) => deck.uuid === this.state.selectedDeckId,
+                  ).name}
             </Text>
             <Button
               h={50}
@@ -589,6 +643,7 @@ class Main extends Component {
       </Modal>
     );
   };
+  //</editor-fold>
 
   render() {
     return (
@@ -617,9 +672,10 @@ class Main extends Component {
                   {this.state.decks.map((deck, index) => (
                     <Document
                       key={index}
-                      name={deck}
+                      name={deck.name}
+                      uuid={deck.uuid}
                       visibleMenuModal={this.visibleMenuModal}
-                      handleSelectedDeckName={this.handleSelectedDeckName}
+                      handleSelectedDeckId={this.handleSelectedDeckId}
                       visibleActionSheet={this.visibleActionSheet}
                     />
                   ))}
@@ -638,7 +694,11 @@ class Main extends Component {
             <Actionsheet.Content bgColor={'#F0F0F0'}>
               <Box w="100%" h={60} px={4} flexDirection={'row'}>
                 <Text fontSize="2xl" color="black" fontWeight="900" my={'auto'}>
-                  {this.state.selectedDeckName}
+                  {!this.state.selectedDeckId
+                    ? 'No Deck Selected'
+                    : this.state.decks.find(
+                        (deck) => deck.uuid === this.state.selectedDeckId,
+                      ).name}
                 </Text>
                 <IconButton
                   ml={'auto'}
@@ -656,21 +716,27 @@ class Main extends Component {
               </Box>
 
               <ScrollView w={'100%'} h={'100%'}>
-                {this.state.words.map((word, index) => {
-                  return (
-                    <Word
-                      front={word.front}
-                      back={word.back}
-                      key={index}
-                      index={index}
-                      removeWord={this.removeWord}
-                      visibleEditWordModal={this.visibleEditWordModal}
-                      handleEditFront={this.handleEditFront}
-                      handleEditBack={this.handleEditBack}
-                      handleEditIndex={this.handleEditIndex}
-                    />
-                  );
-                })}
+                {!!this.state.selectedDeckId ? (
+                  this.state.decks.find(
+                    (deck) => deck.uuid === this.state.selectedDeckId,
+                  ).words.length <= 0 ? (
+                    <Text fontSize={'2xl'} m={'auto'} fontWeight={900}>
+                      No Words
+                    </Text>
+                  ) : (
+                    this.state.decks
+                      .find((deck) => deck.uuid === this.state.selectedDeckId)
+                      .words.map((word, index) => (
+                        <Word
+                          key={index}
+                          front={word.front}
+                          back={word.back}
+                          visibleEditWordModal={this.visibleEditWordModal}
+                          handleSelectedWord={this.handleSelectedWord}
+                        />
+                      ))
+                  )
+                ) : null}
               </ScrollView>
             </Actionsheet.Content>
           </Actionsheet>
