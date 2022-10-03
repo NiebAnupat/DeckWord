@@ -89,6 +89,30 @@
 		<string>NotoSansThai-SemiBoldItalic.ttf</string>
 		<string>NotoSansThai-Thin.ttf</string>
 		<string>NotoSansThai-ThinItalic.ttf</string>
+		<string>Mitr-Bold.ttf</string>
+		<string>Mitr-ExtraLight.ttf</string>
+		<string>Mitr-Light.ttf</string>
+		<string>Mitr-Medium.ttf</string>
+		<string>Mitr-Regular.ttf</string>
+		<string>Mitr-SemiBold.ttf</string>
+		<string>Prompt-Black.ttf</string>
+		<string>Prompt-BlackItalic.ttf</string>
+		<string>Prompt-Bold.ttf</string>
+		<string>Prompt-BoldItalic.ttf</string>
+		<string>Prompt-ExtraBold.ttf</string>
+		<string>Prompt-ExtraBoldItalic.ttf</string>
+		<string>Prompt-ExtraLight.ttf</string>
+		<string>Prompt-ExtraLightItalic.ttf</string>
+		<string>Prompt-Italic.ttf</string>
+		<string>Prompt-Light.ttf</string>
+		<string>Prompt-LightItalic.ttf</string>
+		<string>Prompt-Medium.ttf</string>
+		<string>Prompt-MediumItalic.ttf</string>
+		<string>Prompt-Regular.ttf</string>
+		<string>Prompt-SemiBold.ttf</string>
+		<string>Prompt-SemiBoldItalic.ttf</string>
+		<string>Prompt-Thin.ttf</string>
+		<string>Prompt-ThinItalic.ttf</string>
 	</array>
 </dict>
 </plist>

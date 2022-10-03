@@ -4,6 +4,7 @@ import {
   Actionsheet,
   Box,
   Button,
+  Divider,
   Fab,
   HStack,
   Icon,
@@ -182,7 +183,7 @@ class Main extends Component {
     const { selectedDeckId } = this.state;
     try {
       const newDecks = decks.filter((deck) => deck.uuid !== selectedDeckId);
-      this.setState({ decks: newDecks });
+      this.setState({ decks: newDecks, selectedDeckId: null });
       this.hideMenuModal();
     } catch (error) {
       console.log(error);
@@ -207,27 +208,6 @@ class Main extends Component {
     }
   };
 
-  editDeck = () => {
-    console.log('Edit Deck Function');
-    const { decks, front, back } = this.state;
-    const { selectedDeckId } = this.state;
-    try {
-      const newDecks = decks.map((deck) => {
-        if (deck.uuid === selectedDeckId) {
-          deck.words.push({
-            front: front,
-            back: back,
-          });
-        }
-        return deck;
-      });
-      this.setState({ decks: newDecks });
-      this.hideAddWordModal();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   addWord = async () => {
     const { front, back, decks } = this.state;
     const { selectedDeckId } = this.state;
@@ -244,6 +224,7 @@ class Main extends Component {
       });
       this.setState({ decks: newDecks });
       this.hideAddWordModal();
+      this.visibleActionSheet();
     } catch (error) {
       console.log(error);
     }
@@ -261,7 +242,6 @@ class Main extends Component {
         return deck;
       });
       this.setState({ decks: newDecks });
-      this.hideActionSheet();
     } catch (error) {
       console.log(error);
     }
@@ -286,6 +266,7 @@ class Main extends Component {
       });
       this.setState({ decks: newDecks });
       this.hideEditWordModal();
+      this.visibleActionSheet();
     } catch (error) {
       console.log(error);
     }
@@ -324,7 +305,7 @@ class Main extends Component {
               bg={'danger.600'}
               _text={{
                 color: 'white',
-                fontWeight: '900',
+                fontWeight: '700',
               }}
               _pressed={{
                 bg: 'danger.400',
@@ -341,7 +322,7 @@ class Main extends Component {
               bg={'#3A5BA0'}
               _text={{
                 color: 'white',
-                fontWeight: '900',
+                fontWeight: '700',
               }}
               _pressed={{
                 bg: '#6487ce',
@@ -456,7 +437,13 @@ class Main extends Component {
             Rename The Deck
           </Text>
           <Text mx={'auto'} fontSize={'xl'} bold>
-            "{this.state.selectedDeckName}"
+            "
+            {!this.state.selectedDeckId
+              ? 'No Deck Selected'
+              : this.state.decks.find(
+                  (deck) => deck.uuid === this.state.selectedDeckId,
+                ).name}
+            "
           </Text>
           <Input
             w={200}
@@ -539,13 +526,17 @@ class Main extends Component {
             textAlign={'center'}
             h={'30%'}
             onChangeText={(e) => this.handleBack(e)}
+            onSubmitEditing={this.addWord}
           />
           <HStack justifyContent="center" space={5}>
             <Button
               w={100}
               mt={'5%'}
               bg={'danger.600'}
-              onPress={this.hideAddWordModal}
+              onPress={() => {
+                this.hideAddWordModal();
+                this.visibleActionSheet();
+              }}
               _text={{
                 color: 'white',
                 fontWeight: '900',
@@ -596,6 +587,7 @@ class Main extends Component {
             textAlign={'center'}
             h={'30%'}
             onChangeText={(e) => this.handleEditFront(e)}
+            onSubmitEditing={this.editWord}
           />
           <Input
             value={this.state.editBack}
@@ -608,13 +600,17 @@ class Main extends Component {
             textAlign={'center'}
             h={'30%'}
             onChangeText={(e) => this.handleEditBack(e)}
+            onSubmitEditing={this.editWord}
           />
           <HStack justifyContent="center" space={5}>
             <Button
               w={100}
               mt={'5%'}
               bg={'danger.600'}
-              onPress={this.hideEditWordModal}
+              onPress={() => {
+                this.hideEditWordModal();
+                this.visibleActionSheet();
+              }}
               _text={{
                 color: 'white',
                 fontWeight: '900',
@@ -682,7 +678,7 @@ class Main extends Component {
                 </HStack>
               </ScrollView>
             ) : (
-              <Text fontSize={'2xl'} m={'auto'} fontWeight={900}>
+              <Text fontSize={'2xl'} m={'auto'} fontWeight={500}>
                 No Decks
               </Text>
             )
@@ -693,7 +689,7 @@ class Main extends Component {
             onClose={this.hideActionSheet}>
             <Actionsheet.Content bgColor={'#F0F0F0'}>
               <Box w="100%" h={60} px={4} flexDirection={'row'}>
-                <Text fontSize="2xl" color="black" fontWeight="900" my={'auto'}>
+                <Text fontSize="2xl" color="black" fontWeight="600" my={'auto'}>
                   {!this.state.selectedDeckId
                     ? 'No Deck Selected'
                     : this.state.decks.find(
@@ -715,12 +711,18 @@ class Main extends Component {
                 />
               </Box>
 
+              <Divider mb={3} w={'90%'} mr={'auto'} ml={4} />
+
               <ScrollView w={'100%'} h={'100%'}>
                 {!!this.state.selectedDeckId ? (
                   this.state.decks.find(
                     (deck) => deck.uuid === this.state.selectedDeckId,
                   ).words.length <= 0 ? (
-                    <Text fontSize={'2xl'} m={'auto'} fontWeight={900}>
+                    <Text
+                      fontSize={'2xl'}
+                      m={'auto'}
+                      mt={'60%'}
+                      fontWeight={900}>
                       No Words
                     </Text>
                   ) : (
@@ -731,8 +733,12 @@ class Main extends Component {
                           key={index}
                           front={word.front}
                           back={word.back}
+                          uuid={word.uuid}
                           visibleEditWordModal={this.visibleEditWordModal}
-                          handleSelectedWord={this.handleSelectedWord}
+                          handleWordId={this.handleWordId}
+                          handleEditFront={this.handleEditFront}
+                          handleEditBack={this.handleEditBack}
+                          removeWord={this.removeWord}
                         />
                       ))
                   )

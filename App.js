@@ -11,20 +11,17 @@
  */
 
 import React from 'react';
-import { SSRProvider } from '@react-aria/ssr';
 import { NativeBaseProvider } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
-import theme from './src/assets/useTheme_Prompt';
+import theme from './src/assets/useTheme_NotoSans';
 import MyStack from './src/navigation/StackNavigator';
 
 // Color Switch Component
 const App = () => {
   return (
-    <SSRProvider>
-      <NativeBaseProvider theme={theme}>
-        <NavigationContainer>{MyStack()}</NavigationContainer>
-      </NativeBaseProvider>
-    </SSRProvider>
+    <NativeBaseProvider theme={theme}>
+      <NavigationContainer>{MyStack()}</NavigationContainer>
+    </NativeBaseProvider>
   );
 };
 export default App;
