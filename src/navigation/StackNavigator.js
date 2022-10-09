@@ -3,13 +3,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/Home';
 import Main from '../screens/Main';
 import Result from '../screens/Result';
+import Play from '../screens/Play';
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Result"
+      initialRouteName="Main"
       screenOptions={{
         headerShown: true,
       }}>
@@ -18,29 +19,33 @@ function MyStack() {
         component={Home}
         options={{
           headerShown: false,
+          unmountOnBlur: true,
         }}
       />
       <Stack.Screen
         name="Main"
         component={Main}
         options={{
-          headerTitle: 'DECK WORD',
-          headerTitleAlign: 'center',
-          headerTitleStyle: {
-            color: '#ffffff',
-            fontSize: 25,
-            fontWeight: 'bold',
-          },
-          headerStyle: {
-            backgroundColor: '#3a5ba0',
-          },
+          headerShown: false,
+          unmountOnBlur: true,
         }}
+        unmountOnBlur={true}
+      />
+      <Stack.Screen
+        name="Play"
+        component={Play}
+        options={{
+          headerShown: false,
+          unmountOnBlur: true,
+        }}
+        unmountOnBlur={true}
       />
       <Stack.Screen
         name="Result"
         component={Result}
         options={{
           headerShown: false,
+          unmountOnBlur: true,
         }}
       />
     </Stack.Navigator>

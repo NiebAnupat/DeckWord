@@ -14,6 +14,7 @@ import {
   ScrollView,
   Text,
   View,
+  Toast,
 } from 'native-base';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Document from '../components/MainPage/Document';
@@ -43,10 +44,13 @@ class Main extends Component {
     };
     AsyncStorage.getItem('@decks').then((decks) => {
       if (decks) {
+        console.log('Main : ', decks);
         this.setState({ decks: JSON.parse(decks) });
       }
     });
   }
+
+  componentDidMount() {}
 
   async componentDidUpdate() {
     try {
@@ -271,6 +275,31 @@ class Main extends Component {
       console.log(error);
     }
   };
+
+  navigateToPlay = () => {
+    const { decks, selectedDeckId } = this.state;
+    try {
+      const selectedDeck = decks.find((deck) => deck.uuid === selectedDeckId);
+      const words = selectedDeck.words;
+      if (words.length === 0) {
+        this.hideMenuModal();
+        Toast.show({
+          render: () => (
+            <Box bg={'danger.600'} rounded={10} p={3}>
+              <Text color={'white'}>Please add some words</Text>
+            </Box>
+          ),
+          duration: 2000,
+        });
+      } else {
+        this.hideMenuModal();
+        this.props.navigation.navigate('Play', { words: words });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   //</editor-fold>
 
   //<editor-fold desc="Modal Part">
@@ -337,7 +366,7 @@ class Main extends Component {
   };
 
   menuModal = () => {
-    console.log(this.state.decks);
+    const { navigation } = this.props;
     return (
       <Modal isOpen={this.state.menuModalVisible}>
         <TouchableWithoutFeedback onPress={this.hideMenuModal}>
@@ -366,7 +395,7 @@ class Main extends Component {
               _pressed={{
                 bg: '#6487ce',
               }}
-              onPress={this.visibleMenuModal}>
+              onPress={this.navigateToPlay}>
               Play Deck
             </Button>
             <Button
@@ -644,6 +673,21 @@ class Main extends Component {
   render() {
     return (
       <View h={'100%'}>
+        {/** Header */}
+        <View
+          bg={'#3A5BA0'}
+          h={'50px'}
+          justifyContent={'center'}
+          alignItems={'center'}>
+          <Text
+            fontSize={'2xl'}
+            fontWeight={700}
+            color={'white'}
+            textAlign={'center'}>
+            DECK WORD
+          </Text>
+        </View>
+
         {/*Name Modal*/}
         {this.nameModal()}
 
